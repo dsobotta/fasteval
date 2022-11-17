@@ -24,7 +24,7 @@
 //! * Variable-length `Expression`/`Value` AST nodes are converted into constant-sized `Instruction` nodes.
 //! * The `IC` enumeration helps to eliminate expensive function calls.
 
-
+use serde::{Serialize, Deserialize};
 
 use crate::slab::{ParseSlab, CompileSlab};
 use crate::parser::{Expression, ExprPair, Value, UnaryOp::{self, EPos, ENeg, ENot, EParentheses}, BinaryOp::{self, EOR, EAND, ENE, EEQ, EGTE, ELTE, EGT, ELT, EAdd, ESub, EMul, EDiv, EMod, EExp}, StdFunc::{self, EVar, EFunc, EFuncInt, EFuncCeil, EFuncFloor, EFuncAbs, EFuncSign, EFuncLog, EFuncRound, EFuncMin, EFuncMax, EFuncE, EFuncPi, EFuncSin, EFuncCos, EFuncTan, EFuncASin, EFuncACos, EFuncATan, EFuncSinH, EFuncCosH, EFuncTanH, EFuncASinH, EFuncACosH, EFuncATanH}, PrintFunc};
@@ -46,11 +46,11 @@ macro_rules! bool_to_f64 {
 ///
 /// It behaves much like a pointer or reference, but it is 'safe' (unlike a raw
 /// pointer) and is not managed by the Rust borrow checker (unlike a reference).
-#[derive(Debug, PartialEq, Copy, Clone)]
+#[derive(Debug, PartialEq, Copy, Clone, Deserialize, Serialize)]
 pub struct InstructionI(pub usize);
 
 /// This enumeration boosts performance because it eliminates expensive function calls for constant values.
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Deserialize, Serialize)]
 pub enum IC {
     I(InstructionI),
     C(f64),
@@ -77,7 +77,7 @@ macro_rules! ic_to_instr {
 }
 
 /// An `Instruction` is an optimized AST node resulting from compilation.
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Deserialize, Serialize)]
 pub enum Instruction {
     //---- Primitive Value Types:
     IConst(f64),
@@ -143,6 +143,7 @@ pub enum Instruction {
 use Instruction::{IConst, INeg, INot, IInv, IAdd, IMul, IMod, IExp, ILT, ILTE, IEQ, INE, IGTE, IGT, IOR, IAND, IVar, IFunc, IFuncInt, IFuncCeil, IFuncFloor, IFuncAbs, IFuncSign, IFuncLog, IFuncRound, IFuncMin, IFuncMax, IFuncSin, IFuncCos, IFuncTan, IFuncASin, IFuncACos, IFuncATan, IFuncSinH, IFuncCosH, IFuncTanH, IFuncASinH, IFuncACosH, IFuncATanH, IPrintFunc};
 #[cfg(feature="unsafe-vars")]
 use Instruction::IUnsafeVar;
+
 
 impl Default for Instruction {
     fn default() -> Self { IConst(std::f64::NAN) }

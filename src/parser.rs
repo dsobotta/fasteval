@@ -30,37 +30,38 @@ use crate::slab::ParseSlab;
 use std::str::{from_utf8, from_utf8_unchecked};
 use std::ptr;
 
+use serde::{Serialize, Deserialize};
 
 
 /// An `ExpressionI` represents an index into `Slab.ps.exprs`.
 ///
 /// It behaves much like a pointer or reference, but it is 'safe' (unlike a raw
 /// pointer) and is not managed by the Rust borrow checker (unlike a reference).
-#[derive(Debug, PartialEq, Copy, Clone)]
+#[derive(Debug, PartialEq, Copy, Clone, Deserialize, Serialize)]
 pub struct ExpressionI(pub usize);
 
 /// A `ValueI` represents an index into `Slab.ps.vals`.
 ///
 /// It behaves much like a pointer or reference, but it is 'safe' (unlike a raw
 /// pointer) and is not managed by the Rust borrow checker (unlike a reference).
-#[derive(Debug, PartialEq, Copy, Clone)]
+#[derive(Debug, PartialEq, Copy, Clone, Serialize, Deserialize)]
 pub struct ValueI(pub usize);
 
 
 /// An `Expression` is the top node of a parsed AST.
 ///
 /// It can be `compile()`d or `eval()`d.
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub struct Expression {
     pub(crate) first: Value,
     pub(crate) pairs: Vec<ExprPair>,  // cap=8
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub(crate) struct ExprPair(pub BinaryOp, pub Value);
 
 /// A `Value` can be a Constant, a UnaryOp, a StdFunc, or a PrintFunc.
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub enum Value {
     EConstant(f64),
     EUnaryOp(UnaryOp),
@@ -70,7 +71,7 @@ pub enum Value {
 use Value::{EConstant, EUnaryOp, EStdFunc, EPrintFunc};
 
 /// Unary Operators
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub enum UnaryOp {
     EPos(ValueI),
     ENeg(ValueI),
@@ -80,7 +81,7 @@ pub enum UnaryOp {
 use UnaryOp::{EPos, ENeg, ENot, EParentheses};
 
 /// Binary Operators
-#[derive(Debug, PartialEq, PartialOrd, Copy, Clone)]
+#[derive(Debug, PartialEq, PartialOrd, Copy, Clone, Serialize, Deserialize)]
 pub enum BinaryOp {
     // Sorted in order of precedence (low-priority to high-priority):
     // Keep this order in-sync with evaler.rs.  (Search for 'rtol' and 'ltor'.)
@@ -102,7 +103,7 @@ pub enum BinaryOp {
 use BinaryOp::{EAdd, ESub, EMul, EDiv, EMod, EExp, ELT, ELTE, EEQ, ENE, EGTE, EGT, EOR, EAND};
 
 /// A Function Call with Standard Syntax.
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub enum StdFunc {
     EVar(String),
     #[cfg(feature="unsafe-vars")]
@@ -140,11 +141,11 @@ use StdFunc::{EVar, EFunc, EFuncInt, EFuncCeil, EFuncFloor, EFuncAbs, EFuncSign,
 use StdFunc::EUnsafeVar;
 
 /// Represents a `print()` function call in the `fasteval` expression AST.
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Deserialize, Serialize)]
 pub struct PrintFunc(pub Vec<ExpressionOrString>);  // cap=8
 
 /// Used by the `print()` function.  Can hold an `Expression` or a `String`.
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Deserialize, Serialize)]
 pub enum ExpressionOrString {
     EExpr(ExpressionI),
     EStr(String),  // cap=64

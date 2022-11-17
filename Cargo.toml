@@ -12,6 +12,7 @@ categories = ["mathematics", "science", "parser-implementations"]
 edition = "2018"
 
 [dependencies]
+serde = { version = "1.0.147", features = ["derive"] }
 
 [profile.bench]
 debug = true

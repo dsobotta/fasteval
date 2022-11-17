@@ -59,6 +59,8 @@ use crate::compiler::{Instruction::{self, IConst}, InstructionI};
 use std::fmt;
 use std::mem;
 
+use serde::{Serialize, Deserialize};
+
 #[cfg(feature="unsafe-vars")]
 use std::collections::BTreeMap;
 
@@ -117,6 +119,7 @@ impl ValueI {
 }
 
 /// [See the `slab module` documentation.](index.html)
+#[derive(Deserialize, Serialize)]
 pub struct Slab {
     pub ps:ParseSlab,
     pub cs:CompileSlab,
@@ -210,6 +213,7 @@ pub struct Slab {
 /// }
 /// 
 /// ```
+#[derive(Deserialize, Serialize)]
 pub struct ParseSlab {
     pub(crate) exprs      :Vec<Expression>,
     pub(crate) vals       :Vec<Value>,
@@ -221,6 +225,7 @@ pub struct ParseSlab {
 }
 
 /// `CompileSlab` is where `compile()` results are stored, located at `Slab.cs`.
+#[derive(Serialize, Deserialize)]
 pub struct CompileSlab {
     pub(crate) instrs   :Vec<Instruction>,
     pub(crate) def_instr:Instruction,
